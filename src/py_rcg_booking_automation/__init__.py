@@ -1,0 +1,1 @@
+from .rcg_anonomised_summary import EventSummaryReport
