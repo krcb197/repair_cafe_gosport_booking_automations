@@ -13,8 +13,8 @@ from .rcg_tito import RCG_TITO_API
 from .rcg_tito import RCG_Ticket
 from .google_apps import GoogleDrive
 
-file_dir = Path(__file__).parent
-template_path = file_dir / "templates"
+_file_dir = Path(__file__).parent
+_template_path = _file_dir / "templates"
 
 @dataclass
 class _UploadedGooglePicture:
@@ -22,6 +22,17 @@ class _UploadedGooglePicture:
     google_drive_file_id: str
 
 class EventSummaryReport():
+    """
+    The class makes an HTML page of the bookings into the next Repair Cafe Gosport event from the
+    data in the Tito booking system. The photos in the HMTL page are served from a Google Drive
+    folder to reduce the content embedded in the emails.
+
+
+    The photo submitted by the guests:
+    1. downloaded from Tito
+    2. Reduced in size and saved as JPEG at 50% quality
+    3. Uploaded to a Google Drive Folder that is publicly viewable
+    """
 
     def __init__(self, root_folder_id):
 
@@ -35,14 +46,16 @@ class EventSummaryReport():
         self.drive_api = GoogleDrive()
         self.__root_folder_id = root_folder_id
         self.create_event_folder()
+        # TODO set the permissions to public on the folder
 
-        # make the jinja enviroment
+        # make the jinja environment
         self.__env = jj.Environment(
-            loader=jj.FileSystemLoader( template_path ),
+            loader=jj.FileSystemLoader( _template_path ),
             autoescape=jj.select_autoescape()
         )
 
         # retrieve tito event data
+        self.__ticket_pictures = {}
         self.ingest_event_data()
 
     @property
@@ -59,7 +72,6 @@ class EventSummaryReport():
         self.__event_tickets = [RCG_Ticket.build_from_ticket(ticket) for ticket in
                                 self.__event.tickets]
 
-        self.__ticket_pictures = {}
         with TemporaryDirectory() as tempdir:
             temp_path = Path(tempdir)
             for ticket in self.__event_tickets:
