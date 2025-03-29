@@ -1,0 +1,8 @@
+pandas
+google-api-python-client
+protobuf
+google-auth-oauthlib
+requests
+pytito>=0.0.6
+Jinja2
+pillow

@@ -1,39 +1,141 @@
-class GoogleDoc:
 
-    # The ID of a sample document.
-    #TEMPLATE_DOC_ID = "1InmXBUeZNSj1w0jaPPEhkodD0DVIy87IkKZHcbS6O0o"
-    TEMPLATE_DOC_ID = "19NlCxTi_5NlgECJNyzaLMgi7QXmq6YGt29HfgCP_zvY"
+import os
+
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
+
+from .credentials import google_credentials
+
+class GoogleDoc:
 
     # If modifying these scopes, delete the file token.json.
     SCOPES = ["https://www.googleapis.com/auth/documents"]
 
-    def __init__(self):
+    def __init__(self, creds = None):
         """Shows basic usage of the Docs API.
         Prints the title of a sample document.
         """
-        self.__creds = None
-        # The file token.json stores the user's access and refresh tokens, and is
-        # created automatically when the authorization flow completes for the first
-        # time.
-        if os.path.exists("token.json"):
-            self.__creds = Credentials.from_authorized_user_file("token.json", self.SCOPES)
-        # If there are no (valid) credentials available, let the user log in.
-        if not self.__creds or not self.__creds.valid:
-            if self.__creds and self.__creds.expired and self.__creds.refresh_token:
-                self.__creds.refresh(Request())
-            else:
-                flow = InstalledAppFlow.from_client_secrets_file("credentials.json", self.SCOPES)
-                self.__creds = flow.run_local_server(port=0)
-            # Save the credentials for the next run
-            with open("token.json", "w") as token:
-                token.write(self.__creds.to_json())
+        if creds is None:
+
+            # The file token.json stores the user's access and refresh tokens, and is
+            # created automatically when the authorization flow completes for the first
+            # time.
+            self.__creds = google_credentials(self.SCOPES)
+        else:
+            self.__creds = creds
 
         try:
             self.__service = build("docs", "v1", credentials=self.__creds)
 
-            # Retrieve the documents contents from the Docs service.
-            self._template = self.__service.documents().get(documentId=self.TEMPLATE_DOC_ID).execute()
-
-            print(f"The title of the document is: {self._template.get('title')}")
         except HttpError as err:
             print(err)
+
+    def get_document(self, document_id:str):
+        # Retrieve the documents contents from the Docs service.
+        return self.__service.documents().get(documentId=document_id).execute()
+
+    def update_strings(self, document_id, updates: dict[str, str]):
+
+        try:
+            # "search & replace" API requests for mail merge substitutions
+            reqs = [
+                {
+                    "replaceAllText": {
+                        "containsText": {
+                            "text": "*|%s|*" % key,
+                            "matchCase": True,
+                        },
+                        "replaceText": value,
+                    }
+                }
+                for key, value in updates.items()
+            ]
+
+            # send requests to Docs API to do actual merge
+            self.__service.documents().batchUpdate(
+                body={"requests": reqs}, documentId=document_id, fields=""
+            ).execute()
+            return document_id
+        except HttpError as error:
+            print(f"An error occurred: {error}")
+            return error
+
+    def merge_google_docs(self, doc_ids, new_doc_title):
+
+        # Create a new document
+
+        new_doc = self.__service.documents().create(body={'title': new_doc_title}).execute()
+        new_doc_id = new_doc['documentId']
+
+        for doc_id in doc_ids:
+            # Get content from each document
+
+            # Get the source document's content
+            source_doc = self.__service.documents().get(documentId=doc_id).execute()
+            source_body = source_doc.get('body', {}).get('content', [])
+
+            # Construct the requests to append the content to the target document
+            requests = []
+            insert_index = self.__get_document_end_index(new_doc_id)  # Find the end of the document.
+
+            for element in source_body:
+                requests.append({
+                    'insertContent': {
+                        'location': {
+                            'index': insert_index
+                        },
+                        'content': element
+                    }
+                })
+                # Increment the index appropriately. This is crucial.
+                insert_index += self.__get_element_length(element)
+
+            # Execute the requests to append the content
+            if requests:
+                self.__service.documents().batchUpdate(
+                    documentId=new_doc_id, body={'requests': requests}
+                ).execute()
+
+        return new_doc_id
+
+    def __get_document_end_index(self, document_id):
+        """Gets the index of the end of the document."""
+        doc = self.__service.documents().get(documentId=document_id).execute()
+        return len(doc.get('body', {}).get('content', []))
+
+    def __get_element_length(self, element):
+        """Gets the length of a document element for index incrementing."""
+        if 'paragraph' in element:
+            paragraph = element['paragraph']
+            if 'elements' in paragraph:
+                length = 0
+                for el in paragraph['elements']:
+                    if 'textRun' in el and 'content' in el['textRun']:
+                        length += len(el['textRun']['content'])
+                    elif 'inlineObjectElement' in el:
+                        length += 1  # Inline objects are single characters in terms of index
+                    elif 'horizontalRule' in el:
+                        length += 1  # Horizontal rules are single characters in terms of index.
+                    elif 'pageBreak' in el:
+                        length += 1  # Page breaks are single characters in terms of index.
+                return length
+        elif 'table' in element:
+            table = element['table']
+            rows = table.get('tableRows', [])
+            length = 0
+            for row in rows:
+                cells = row.get('tableCells', [])
+                for cell in cells:
+                    length += self.__get_element_length({'paragraph': cell.get('content', [])[0]})  # Treat cell content as a paragraph.
+            return length
+        elif 'sectionBreak' in element:
+            return 1  # Section breaks are single characters in terms of index.
+        elif 'tableOfContents' in element:
+            return 1  # TOC are single characters in terms of index.
+        elif 'lists' in element:
+            return 1  # Lists are single characters in terms of index.
+        else:
+            return 1  # Default to 1 if the type is unknown.
+
+
+

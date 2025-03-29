@@ -27,7 +27,6 @@ class EventSummaryReport():
     data in the Tito booking system. The photos in the HMTL page are served from a Google Drive
     folder to reduce the content embedded in the emails.
 
-
     The photo submitted by the guests:
     1. downloaded from Tito
     2. Reduced in size and saved as JPEG at 50% quality
@@ -41,6 +40,8 @@ class EventSummaryReport():
 
         # find the event to make a summary of
         self.__event = self.__tito.next_event
+        self.__event_tickets = [RCG_Ticket.build_from_ticket(ticket) for ticket in
+                                self.__event.tickets]
 
         # make a google drive connection
         self.drive_api = GoogleDrive()
@@ -56,7 +57,7 @@ class EventSummaryReport():
 
         # retrieve tito event data
         self.__ticket_pictures = {}
-        self.ingest_event_data()
+        self.__ingest_event_pictures()
 
     @property
     def drive_folder_name(self):
@@ -67,10 +68,7 @@ class EventSummaryReport():
             self.drive_api.create_folder(self.drive_folder_name,
                                          self.__root_folder_id)
 
-    def ingest_event_data(self):
-
-        self.__event_tickets = [RCG_Ticket.build_from_ticket(ticket) for ticket in
-                                self.__event.tickets]
+    def __ingest_event_pictures(self):
 
         with TemporaryDirectory() as tempdir:
             temp_path = Path(tempdir)

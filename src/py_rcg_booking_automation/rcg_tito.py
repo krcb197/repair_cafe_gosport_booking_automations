@@ -20,7 +20,8 @@ class RCG_Ticket(Ticket):
     def build_from_ticket(cls, ticket: Ticket) -> 'RCG_Ticket':
         return cls(account_slug=ticket._account_slug,
                    event_slug=ticket._event_slug,
-                   ticket_slug=ticket._ticket_slug)
+                   ticket_slug=ticket._ticket_slug,
+                   allow_automatic_json_retrieval=True)
 
 
     @property
@@ -73,6 +74,19 @@ class RCG_Ticket(Ticket):
         with open(filename, mode='wb') as fid:
             fid.write(response.content)
 
+    @property
+    def phone_number(self) -> str:
+        for answer in self.answers:
+            if answer['question_title'] == 'Phone Number':
+                return answer['primary_response']
+        return None
+
+    @property
+    def post_code(self) -> str:
+        for answer in self.answers:
+            if answer['question_title'] == 'Post Code':
+                return answer['primary_response']
+        return None
 
 class RCG_TITO_API(Account):
     """
