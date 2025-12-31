@@ -3,6 +3,6 @@ google-api-python-client
 protobuf
 google-auth-oauthlib
 requests
-pytito>=0.0.6
+pytito>=0.0.10
 Jinja2
 pillow
