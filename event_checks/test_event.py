@@ -1,27 +1,14 @@
-import calendar
+
 import re
 import datetime
 
 _event_name_re = re.compile(r"^Repair Café (?P<month>[A-Za-z]+) (?P<year>\d{4})$")
 
-import pytest
 
 from pytito.admin import AdminAPI
+from py_rcg_booking_automation.date_operations import second_saturday, previous_second_saturday
 
 repair_cafe_gosport_tito = AdminAPI().accounts['repair-cafe-gosport']
-
-def second_saturday(year, month) -> datetime.date:
-    """
-    Repair Cafe Gosport events happen on the 2nd saturday of the month
-
-    Determine the date of the 2nd for a given month and year
-    """
-    if not 1 <= month <= 12:
-        raise ValueError(f'Month should be in the range 1 to 12, got {month}')
-    cal = calendar.monthcalendar(year, month)
-    saturdays = [week[calendar.SATURDAY] for week in cal
-                 if week[calendar.SATURDAY] != 0]
-    return datetime.date(year, month, saturdays[1])
 
 def next_second_saturday() -> datetime.date:
     """
