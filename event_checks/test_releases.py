@@ -16,7 +16,7 @@ from dataclasses import dataclass, field
 
 from pytito.admin import Event, Release
 
-from .test_event import second_saturday
+from py_rcg_booking_automation.date_operations import second_saturday, previous_second_saturday
 
 @dataclass
 class RCGEventWithDates:
@@ -27,15 +27,8 @@ class RCGEventWithDates:
     @property
     def __previous_second_saturday(self) -> datetime.date:
 
-        month = self.event.start_at.month
-        year = self.event.start_at.year
-
-        month -= 1
-        if month == 0:
-            year -= 1
-            month = 12
-
-        return second_saturday(year=year, month=month)
+        return previous_second_saturday(month=self.event.start_at.month,
+                                        year=self.event.start_at.year)
 
     def __post_init__(self):
         event_start_time = self.event.start_at

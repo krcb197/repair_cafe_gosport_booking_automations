@@ -16,8 +16,12 @@ The pictures provided by guests are uploaded to a Google Drive folder so that th
 be served up in the HTML report without needing to attach lots of pictures to an email
 
 ## Event Configuration Checker
-Setting up an event in Tito by hand can be error prone, this runs a series of rule checks
+Setting up an event in Tito by hand can be error-prone, this runs a series of rule checks
 To make sure the event is correctly configured, including:
 - The event is set to the second saturday of the month, that matches is name
 - The on and off sale times for tickets are setup correctly
 - The start and end time of the activities are correct
+
+## Event Generator
+Duplicates the latest chronological event and then update all the dates
+
