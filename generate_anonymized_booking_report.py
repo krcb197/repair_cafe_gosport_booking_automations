@@ -15,6 +15,6 @@ if __name__ == '__main__':
     # this will create a file called 'booking.html' in the HTML output directory
     event_report.stream_out_report(file_path / 'html_output')
 
-    print('Now makes the new folder publically viewble so everyone can see it')
+    print('Now makes the new folder publicly viewable so everyone can see it')
 
 
