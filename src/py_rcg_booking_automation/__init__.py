@@ -1,4 +1,4 @@
 from .rcg_anonomised_summary import EventSummaryReport
-from .rcg_booking_forms import EventBookingForms
+from .rcg_repair_forms import RepairForms
 from .rcg_supporter_crm_export import SupporterCRMExporter
 from .rcg_tito import RCG_TITO_API

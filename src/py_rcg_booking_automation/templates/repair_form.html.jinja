@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{event.title}}</title>
+    <style>
+    h1 {text-align: center; font-family: sans-serif;}
+    h2 {text-align: center; font-family: sans-serif; font-size: 90%;}
+    p,li { font-family: sans-serif; font-size: 90%; }
+    table, th, td {
+        border: 2px solid black;
+        border-collapse: collapse;
+    }
+    #table{
+        max-width: 2480px;
+        width:100%;
+    }
+    #table td{
+        width: auto;
+        overflow: hidden;
+        word-wrap: break-word;
+        vertical-align: top;
+    }
+    </style>
+    <style type="text/css">
+        @page {    size: 21cm 29.7cm; margin: 10mm 20mm 10mm 20mm; }
+        
+    </style>
+</head>
+<body>
+{% for ticket in tickets %}
+<table border=0 style="width:100%;border: 0px solid black;">
+    <tr>
+        <td style="border: 0px solid black;"><img height="75" src="https://repaircafegosport.co.uk/wp-content/uploads/2021/02/RCG-logo-300x106-1.png"></td>
+        <td style="border: 0px solid black"><h1>Repair Form</h1><h2>{{date}}</h2>
+    </tr>
+</table>
+<h2>Item Description ({{ticket["Reference"]}})</h2>
+<p>Please fill in this form for one item, if there are multiple items, a second form should be used</p></td>
+<table border=0 style="width:100%">
+    <tr style="height:70px">
+        <td colspan="2" style="vertical-align: top"><p>Item for Repair (Including Brand and Model if known): {{ticket['Broken Thing']}}</p></td>
+    </tr>
+    <tr style="height:100px">
+        <td colspan="2" style="vertical-align: top"><p>Description of the Fault:{{ticket['Fault Description']}}</p></td>
+    </tr>
+    <tr>
+        <td><p>Weight (KG):</p></td>
+        <td><p>Age of Item:</p></td>
+    </tr>
+</table>
+<h2>Safety Inspection (Electrical Only)</h2>
+<table border=0 style="width:100%">
+    <tr>
+        <td colspan="3"><p>Initial Check:</p></td>
+        <td><p>Class: </p></td>
+    </tr>
+    <tr>
+        <td><p>Visual: Pass / Fail </p></td>
+        <td><p>Earth Continuity: </p></td>
+        <td><p>Insulation Resitance: </p></td>
+        <td><p>Leakage: </p></td>
+    </tr>
+    <tr>
+        <td colspan="4"><p>Comments: </p></td>
+    <tr>
+        <td colspan="4"><p>Final Check (Signed for Pass):</p></td>
+    </tr>
+</table>
+<h2>Repair</h2>
+<table border=0 style="width:100%">
+    <tr style="height:100px">
+        <td colspan="2" style="width:100%; vertical-align: top"><p>Desription of Repair:</p></td>
+    </tr>
+    <tr>
+        <td style="width:50%"><p>Repairer:</p></td>
+        <td style="width:50%"><p>Outcome: Fixed / Repairable / End of Life</p></td>
+    </tr>
+</table>
+<h2>Guest Feedback</h2>
+<table border=0 style="width:100%">
+    <tr style="height:50px">
+        <td><p>Visitor Comments:</p></td>
+    </tr>
+</table>
+<h2>Thank you</h2>
+<p>Repair Cafe Gosport is run by volunteers and relies on donations to for costs. It costs approx. £170 to run each month, if each guest who can afford to donate gave at least £10 we can carry on doing this. Thank You in advance for visiting </p>
+<div style="break-after:page"></div>
+<h1>Guest Information ({{ticket["Reference"]}})</h1>
+<table border=0 style="width:100%">
+    <tr>
+        <td><p>Name: {{ticket['Full Name']}}</p></td>
+        <td><p>Phone: {{ticket['Phone Number']}}</p></td>
+    </tr>
+    <tr>
+        <td><p>Email:{{ticket['Order Email']}}</p></td>
+        <td><p>Postcode:{{ticket['Post Code'].upper()}}</p></td>
+    </tr>
+</table>
+<h2>Disclaimer</h2>
+<p>
+<ol>
+<li>This form is for one item or set of similar items (where agreed). Another items will require a separate form and we may need to restrict guests to one item per event at busy times.</li>
+<li>The time shown on a pre-booking is for the benefit of Repair Café Gosport to minimise congestion. The time provided is no guarantee that you will be helped by one of our volunteers at that time. </li>
+<li>Dangerous tools and equipment are present and sometimes used in repairs. Parents must exercise control over, and be responsible for, the behavior of their children whilst attending a Repair Café session. </li>
+<li>Volunteers work with our guests based on a number of factors, the order of arrival and/or prebooked time may not solely influence the order we help guests.</li>
+<li>All repairs carried out at Repair Café Gosport are performed at the visitor’s own risk. Any advice given is free and in good faith. Neither Repair Café Gosport nor our individual volunteers accept any liability for the advice given. Any repair attempt carried out based on our volunteer’s advice, is the responsibility of the guest.</li>
+<li>Neither the organisers of Repair Café Gosport nor the volunteers in a personal capacities or otherwise are liable for any damage that may occur to either visitors’ goods (including vehicles) or personal effects during visitors’ time at the sessions, or for any loss or injury whatsoever that may result from any repair carried out or for any advice or instructions given and used at a later date.</li>
+<li>Neither the organisers of Repair Café Gosport nor the volunteers in a personal capacity offer any guarantee for any repairs carried out with or without their help and are not liable if any repaired items do not work properly or are unsafe at a later time.</li>
+<li>Repair Café Gosport does not guarantee that an attempted repair will be completed. In some case item may not be reassembled, and the guest will need to remove it in that state.</li>
+<li>All electrical items undergo an electrical safety test after repair. The visitor gives Repair Café Gosport permission to disable any item that fails that test if it judged to be a danger.</li>
+<li>The guest is responsible for providing any consumables such as leads, plugs, fuses, zips, etc. that may be needed to complete a repair.</li>
+<li>Our volunteers are permitted to withdraw from offering advice or attempting a repair at any time without providing any explanation.</li>
+<li>Our volunteers are permitted to refuse to attempt a repair on any item. </li>
+<li>There is no charge for our volunteers' time, advice, and help. We ask you to consider a donation towards the cost of running Repair Café Gosport.</li>
+<li>Visitors are expected to remain their items the whole time and whilst the repair is being carried out, in order to see how the repair is being done and to pick up new skills. Items should not be left for collection later time. Visitors are required to take their items with them when they leave, this includes item which have not been successfully repaired.</li>
+<li>Repair Café Gosport runs public events where photographs and video may be taken to be used by Repair Café Gosport for promotion of its aims, exclusively for non-profit-making purposes. If you would prefer not to be present in these, please talk to the volunteers taking pictures.</li>
+<li>All visitors are required to complete this registration form for Repair Café Gosport records before any advice is given or repair attempted. That information is retained in case we need to contact you later about your visit. We may also use that information to tell you about future events.</li>
+</ol>
+</p>
+<p>I have read, understood and agreed to abide by the house rules/disclaimer.</p>
+<table border=0 style="width:100%">
+    <tr>
+        <td style="width:80%"><p>Signed:</p></td>
+        <td style="width:20%"><p>Date:</p></td>
+    </tr>
+</table>
+{% if not loop.last %}
+<div style="break-after:page"></div>
+{% endif %}
+{% endfor %} {# the main ticket loop #}
+</body>
+</html>
