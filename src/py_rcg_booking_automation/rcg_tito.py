@@ -298,6 +298,12 @@ class RCG_Ticket(Ticket):
             return True
         return False
 
+    @property
+    def repair_picture_filename(self):
+        if not self.repair_picture_present:
+            raise RuntimeError('No picture available to download')
+        return self._repair_picture['response']
+
     def retrieve_repair_picture(self, filename):
         if not self.repair_picture_present:
             raise RuntimeError('No picture available to download')

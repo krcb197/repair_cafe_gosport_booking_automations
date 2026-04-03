@@ -8,10 +8,13 @@ from dataclasses import dataclass
 
 import jinja2 as jj
 from PIL import Image
+from pillow_heif import register_heif_opener
 
 from .rcg_tito import RCG_TITO_API
 from .rcg_tito import RCG_Ticket
 from .google_apps import GoogleDrive
+
+register_heif_opener()
 
 _file_dir = Path(__file__).parent
 _template_path = _file_dir / "templates"
@@ -76,7 +79,8 @@ class EventSummaryReport():
                 if ticket.repair_picture_present:
                     print(f'retrieving:{ticket.reference}')
                     cleaned_reference = ticket.reference.replace('-', '_')
-                    filename_full = cleaned_reference + '_full_quality.JPG'
+                    ext = Path(ticket.repair_picture_filename).suffix
+                    filename_full = cleaned_reference + f'_full_quality{ext}'
                     filename = cleaned_reference + '.JPG'
 
                     fq_temp_pic = temp_path / filename_full

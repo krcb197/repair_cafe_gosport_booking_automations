@@ -6,3 +6,5 @@ requests
 pytito>=0.0.12
 Jinja2
 pillow
+register_heif_opener
+faker
