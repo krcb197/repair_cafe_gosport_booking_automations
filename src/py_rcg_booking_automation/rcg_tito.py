@@ -36,15 +36,20 @@ class RCGReleaseDef(ABC):
     Abstract Base Class for a Repair Cafe Gosport Tito Event Release. A Release is block of
     tickets that can go (On-sale and Off-sale)
     """
-    event_start_time: datetime.time
+    event_start: datetime.datetime
     early_bird_on_sale: datetime.datetime
     early_bird_to_general_on_sale: datetime.datetime
     slot_start_time : datetime.time = field(init=False)
     on_sale: datetime.datetime = field(init=False)
-    off_sale: Optional[datetime.datetime] = field(init=False)
+    off_sale: datetime.datetime = field(init=False)
     release_title: str = field(init=False)
     release_slug_prefix : str = field(init=False)
     preferred_release_slug: str = field(init=False)
+
+    @property
+    def event_start_time(self) -> datetime.time:
+        return self.event_start.time()
+
 
 @dataclass
 class RCGBikeRepairReleaseDef(RCGReleaseDef):
@@ -62,10 +67,10 @@ class RCGBikeRepairReleaseDef(RCGReleaseDef):
         self.slot_start_time = (datetime.datetime.combine(datetime.date.today(), self.event_start_time) + (datetime.timedelta(hours=1, minutes=15) * (self.slot - 1))).time()
         if self.slot == 2:
             self.on_sale = self.early_bird_on_sale
-            self.off_sale = None
+            self.off_sale = self.event_start
         else:
             self.on_sale = self.early_bird_to_general_on_sale
-            self.off_sale = None
+            self.off_sale = self.event_start
         self.release_title = f'Repair Cafe Guest - Bike Repair - Booking Slot {self.slot} ({self.slot_start_time:%H:%M})'
         self.preferred_release_slug = f'repair-cafe-guest-bike-repair-booking-slot-{self.slot}'
         self.release_slug_prefix = self.preferred_release_slug
@@ -95,7 +100,7 @@ class RCGGeneralRepairReleaseDef(RCGReleaseDef):
             self.off_sale = self.early_bird_to_general_on_sale
         else:
             self.on_sale = self.early_bird_to_general_on_sale
-            self.off_sale = None
+            self.off_sale = self.event_start
         self.release_title = f'Repair Cafe Guest - General Repair - Booking Slot {self.slot} ({self.slot_start_time:%H:%M})'
         self.preferred_release_slug = f'repair-cafe-guest-general-repair-booking-slot-{self.slot}'
         self.release_slug_prefix = self.preferred_release_slug
@@ -112,7 +117,7 @@ class RCGVolunteerRepairReleaseDef(RCGReleaseDef):
     def __post_init__(self):
         self.slot_start_time = (datetime.datetime.combine(datetime.date.today(), self.event_start_time)).time()
         self.on_sale = self.early_bird_on_sale
-        self.off_sale = None
+        self.off_sale = self.event_start
         self.release_title = f'Volunteer Repair'
         self.preferred_release_slug = f'volunteer-repair'
         self.release_slug_prefix = self.preferred_release_slug
@@ -215,7 +220,7 @@ class RCGEventDef:
         """
         for slot, early_bird in product(range(3), [True, False]):
             yield RCGGeneralRepairReleaseDef(
-                event_start_time=self.event_start_time,
+                event_start=self.event_start_timestamp,
                 early_bird_on_sale=self.early_bird_on_sale,
                 early_bird_to_general_on_sale=self.early_bird_to_general_on_sale,
                 slot=slot + 1,
@@ -223,12 +228,12 @@ class RCGEventDef:
             )
         for slot in range(2):
             yield RCGBikeRepairReleaseDef(
-                event_start_time=self.event_start_time,
+                event_start=self.event_start_timestamp,
                 early_bird_on_sale=self.early_bird_on_sale,
                 early_bird_to_general_on_sale=self.early_bird_to_general_on_sale,
                 slot=slot + 1, )
         yield RCGVolunteerRepairReleaseDef(
-            event_start_time=self.event_start_time,
+            event_start=self.event_start_timestamp,
             early_bird_on_sale=self.early_bird_on_sale,
             early_bird_to_general_on_sale=self.early_bird_to_general_on_sale)
 
@@ -239,7 +244,7 @@ class RCGEventDef:
         """
         for slot in range(3):
             yield RCGGeneralRepairActivityDef(event_start_timestamp=self.event_start_timestamp,
-                                           slot=slot + 1)
+                                              slot=slot + 1)
         for slot in range(2):
             yield RCGBikeRepairActivityDef(event_start_timestamp=self.event_start_timestamp,
                                            slot=slot + 1)
