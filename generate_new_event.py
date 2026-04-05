@@ -8,7 +8,7 @@ if __name__ == '__main__':
 
     repair_cafe_gosport_tito = RCG_TITO_API()
     new_event_def = repair_cafe_gosport_tito.new_event(
-         month=3, year=2026,
+         month=6, year=2026,
          start_time=time(hour=10, minute=30, tzinfo=timezone.utc))
 
     secret_settings = new_event_def._get_response('settings/tickets')['event']
