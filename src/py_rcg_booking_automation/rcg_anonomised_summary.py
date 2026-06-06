@@ -90,8 +90,15 @@ class EventSummaryReport():
 
                     # process the picture to make it 1024 wide and lower quality
                     with Image.open(fq_temp_pic) as im:
-                        im.thumbnail((1024, 1024))
-                        im.save(fq_output_pic, quality=50)
+                        if im.mode == 'RGBA':
+                            # special case to handle images with an alpha channel,
+                            # notably PNG files
+                            new_im = im.convert(mode='RGB')
+                            new_im.thumbnail((1024, 1024))
+                            new_im.save(fq_output_pic, quality=50)
+                        else:
+                            im.thumbnail((1024, 1024))
+                            im.save(fq_output_pic, quality=50)
 
                     upload_id = self.drive_api.upload_file(fq_output_pic,
                                                            self.__event_picture_folder_id)
